@@ -4,20 +4,21 @@
 // ============================================
 
 // Import required packages
-const express = require('express');         // Create API endpoints
-const bcrypt = require('bcryptjs');        // Check passwords securely
-const db = require('../config/database');  // Connect to MySQL
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const db = require('../config/database');
 
 const router = express.Router();
 
+// Hash used only by the hosted demo account.
+const DEMO_PASSWORD_HASH = 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3';
+
 // POST /api/login
-// Check if the username and password are correct
-// Return user info if login is successful
+// Check if the username and password are correct.
 router.post('/login', async (req, res) => {
-  // Get username and password from the request body
   const { username, password } = req.body;
 
-  // Validate that both username and password were provided
   if (!username || !password) {
     return res.status(400).json({
       success: false,
@@ -25,11 +26,29 @@ router.post('/login', async (req, res) => {
     });
   }
 
+  // Vercel cannot connect to the XAMPP database on the laptop,
+  // so the hosted version includes one simple demo account.
+  if (process.env.VERCEL || process.env.DEMO_MODE === 'true') {
+    const enteredHash = crypto.createHash('sha256').update(password).digest('hex');
+
+    if (username === 'ridwan' && enteredHash === DEMO_PASSWORD_HASH) {
+      return res.json({
+        success: true,
+        message: 'Demo login successful.',
+        user: { id: 1, username: 'ridwan' }
+      });
+    }
+
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid username or password.'
+    });
+  }
+
   try {
-    // Search the users table for the username
+    // Search the users table for the username.
     const [rows] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
 
-    // If username not found
     if (rows.length === 0) {
       return res.status(401).json({
         success: false,
@@ -37,13 +56,9 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Get the user from the database
     const user = rows[0];
-    
-    // Compare the provided password with the hashed password stored in database
     const passwordMatches = await bcrypt.compare(password, user.password);
 
-    // If password does not match
     if (!passwordMatches) {
       return res.status(401).json({
         success: false,
@@ -51,7 +66,6 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Login successful - return user info to frontend
     return res.json({
       success: true,
       message: 'Login successful.',
