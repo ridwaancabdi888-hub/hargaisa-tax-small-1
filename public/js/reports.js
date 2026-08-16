@@ -21,15 +21,14 @@ function getStatusBadge(status) {
 
 function checkLogin() {
   const user = JSON.parse(localStorage.getItem('adminUser') || 'null');
-  if (!user) {
-    window.location.href = 'index.html';
-  }
+  if (!user) window.location.href = 'index.html';
 }
 
 async function loadReports() {
   try {
-    const response = await fetch('/api/reports');
-    const data = await response.json();
+    const data = window.HargeisaDemo?.enabled
+      ? { stats: window.HargeisaDemo.getStats(), properties: window.HargeisaDemo.getProperties() }
+      : await (await fetch('/api/reports')).json();
 
     reportTotal.textContent = data.stats.totalProperties;
     reportPaid.textContent = data.stats.paidProperties;
@@ -37,7 +36,6 @@ async function loadReports() {
     reportCollected.textContent = formatCurrency(data.stats.totalTaxCollected);
 
     reportTableBody.innerHTML = '';
-
     if (!data.properties.length) {
       reportTableBody.innerHTML = '<tr><td colspan="6">No property records available.</td></tr>';
       return;
@@ -51,8 +49,7 @@ async function loadReports() {
         <td>${property.district}</td>
         <td>${property.property_type}</td>
         <td>$${Number(property.tax_amount).toFixed(2)}</td>
-        <td>${getStatusBadge(property.tax_status)}</td>
-      `;
+        <td>${getStatusBadge(property.tax_status)}</td>`;
       reportTableBody.appendChild(row);
     });
   } catch (error) {
