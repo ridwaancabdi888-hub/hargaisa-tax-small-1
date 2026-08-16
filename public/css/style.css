@@ -62,6 +62,14 @@ button {
   font-size: 14px;
 }
 
+input:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 2px;
+}
+
 .form-message {
   display: none;
   padding: 10px 12px;
