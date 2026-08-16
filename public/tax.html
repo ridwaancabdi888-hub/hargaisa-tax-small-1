@@ -27,52 +27,28 @@
       </aside>
 
       <main class="main-content">
-        <header class="topbar">
-          <h1>Tax Management</h1>
-        </header>
-
+        <header class="topbar"><h1>Tax Management</h1></header>
         <section class="card">
           <h3>Record Payment</h3>
           <div id="paymentMessage" class="form-message" aria-live="polite"></div>
           <form id="paymentForm" class="property-form">
             <div class="grid-3">
-              <div>
-                <label for="propertySelect">Property ID</label>
-                <select id="propertySelect" required></select>
-              </div>
-              <div>
-                <label for="paymentAmount">Tax Amount</label>
-                <input type="number" id="paymentAmount" step="0.01" required />
-              </div>
-              <div>
-                <label for="paymentDate">Payment Date</label>
-                <input type="date" id="paymentDate" required />
-              </div>
+              <div><label for="propertySelect">Property ID</label><select id="propertySelect" required></select></div>
+              <div><label for="paymentAmount">Tax Amount</label><input type="number" id="paymentAmount" step="0.01" required /></div>
+              <div><label for="paymentDate">Payment Date</label><input type="date" id="paymentDate" required /></div>
             </div>
-            <div class="form-actions">
-              <button type="submit" class="primary-btn">Record Payment</button>
-            </div>
+            <div class="form-actions"><button type="submit" class="primary-btn">Record Payment</button></div>
           </form>
         </section>
 
         <section class="card table-card">
           <h3>Tax Records</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Property ID</th>
-                <th>Owner</th>
-                <th>Tax Amount</th>
-                <th>Tax Status</th>
-                <th>Payment Date</th>
-              </tr>
-            </thead>
-            <tbody id="taxTableBody"></tbody>
-          </table>
+          <table><thead><tr><th>Property ID</th><th>Owner</th><th>Tax Amount</th><th>Tax Status</th><th>Payment Date</th></tr></thead><tbody id="taxTableBody"></tbody></table>
         </section>
       </main>
     </div>
 
+    <script src="js/demo-store.js"></script>
     <script src="js/tax.js"></script>
   </body>
 </html>
