@@ -13,52 +13,25 @@ function showMessage(message, type = 'success') {
 }
 
 function validatePropertyForm(payload) {
-  if (!payload.owner_name || !payload.owner_name.trim()) {
-    return 'Owner Name cannot be empty.';
-  }
-
-  if (!payload.phone || !payload.phone.trim()) {
-    return 'Phone Number cannot be empty.';
-  }
-
-  if (!payload.district || !payload.district.trim()) {
-    return 'District cannot be empty.';
-  }
-
-  if (!payload.property_type) {
-    return 'Please select a property type.';
-  }
-
-  if (!payload.tax_amount || Number(payload.tax_amount) <= 0 || Number.isNaN(Number(payload.tax_amount))) {
-    return 'Tax Amount must be a valid positive number.';
-  }
-
-  if (!['Paid', 'Unpaid'].includes(payload.tax_status)) {
-    return 'Tax Status must be Paid or Unpaid.';
-  }
-
-  if (!payload.latitude || Number.isNaN(Number(payload.latitude))) {
-    return 'Latitude must be a valid number.';
-  }
-
-  if (!payload.longitude || Number.isNaN(Number(payload.longitude))) {
-    return 'Longitude must be a valid number.';
-  }
-
+  if (!payload.owner_name || !payload.owner_name.trim()) return 'Owner Name cannot be empty.';
+  if (!payload.phone || !payload.phone.trim()) return 'Phone Number cannot be empty.';
+  if (!payload.district || !payload.district.trim()) return 'District cannot be empty.';
+  if (!payload.property_type) return 'Please select a property type.';
+  if (!payload.tax_amount || Number(payload.tax_amount) <= 0 || Number.isNaN(Number(payload.tax_amount))) return 'Tax Amount must be a valid positive number.';
+  if (!['Paid', 'Unpaid'].includes(payload.tax_status)) return 'Tax Status must be Paid or Unpaid.';
+  if (Number.isNaN(Number(payload.latitude))) return 'Latitude must be a valid number.';
+  if (Number.isNaN(Number(payload.longitude))) return 'Longitude must be a valid number.';
   return null;
 }
 
 function getStatusBadge(status) {
   const safeStatus = status || 'Unpaid';
-  const isPaid = safeStatus === 'Paid';
-  return `<span class="status-badge ${isPaid ? 'paid' : 'unpaid'}">${safeStatus}</span>`;
+  return `<span class="status-badge ${safeStatus === 'Paid' ? 'paid' : 'unpaid'}">${safeStatus}</span>`;
 }
 
 function checkLogin() {
   const user = JSON.parse(localStorage.getItem('adminUser') || 'null');
-  if (!user) {
-    window.location.href = 'index.html';
-  }
+  if (!user) window.location.href = 'index.html';
 }
 
 logoutBtn.addEventListener('click', (event) => {
@@ -67,18 +40,19 @@ logoutBtn.addEventListener('click', (event) => {
   window.location.href = 'index.html';
 });
 
+async function getPropertyRows(search = '') {
+  if (window.HargeisaDemo?.enabled) return window.HargeisaDemo.getProperties(search);
+  const response = await fetch(`/api/properties?search=${encodeURIComponent(search)}`);
+  if (!response.ok) throw new Error('Unable to load properties.');
+  return response.json();
+}
+
 async function loadProperties(search = '', status = 'All') {
   try {
-    const response = await fetch(`/api/properties?search=${encodeURIComponent(search)}`);
-    const data = await response.json();
-
+    const data = await getPropertyRows(search);
     tableBody.innerHTML = '';
 
-    const filteredData = data.filter((property) => {
-      if (status === 'All') return true;
-      return property.tax_status === status;
-    });
-
+    const filteredData = data.filter((property) => status === 'All' || property.tax_status === status);
     if (!filteredData.length) {
       tableBody.innerHTML = '<tr><td colspan="11">No properties found.</td></tr>';
       return;
@@ -100,8 +74,7 @@ async function loadProperties(search = '', status = 'All') {
         <td>
           <button class="action-btn" data-action="edit" data-id="${property.id}">Edit</button>
           <button class="action-btn" data-action="delete" data-id="${property.id}">Delete</button>
-        </td>
-      `;
+        </td>`;
       tableBody.appendChild(row);
     });
   } catch (error) {
@@ -112,7 +85,6 @@ async function loadProperties(search = '', status = 'All') {
 
 propertyForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-
   const propertyId = document.getElementById('propertyId').value;
   const payload = {
     property_code: document.getElementById('propertyCode').value.trim(),
@@ -127,32 +99,24 @@ propertyForm.addEventListener('submit', async (event) => {
   };
 
   const validationError = validatePropertyForm(payload);
-  if (validationError) {
-    showMessage(validationError, 'error');
-    return;
-  }
+  if (validationError) return showMessage(validationError, 'error');
 
   try {
-    const url = propertyId ? `/api/properties/${propertyId}` : '/api/properties';
-    const method = propertyId ? 'PUT' : 'POST';
-
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      showMessage(data.message || 'Could not save property.', 'error');
-      return;
+    if (window.HargeisaDemo?.enabled) {
+      window.HargeisaDemo.saveProperty(payload, propertyId || null);
+    } else {
+      const response = await fetch(propertyId ? `/api/properties/${propertyId}` : '/api/properties', {
+        method: propertyId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!response.ok) return showMessage(data.message || 'Could not save property.', 'error');
     }
 
-    const successMessage = propertyId ? 'Property updated successfully.' : 'Property added successfully.';
     propertyForm.reset();
     document.getElementById('propertyId').value = '';
-    showMessage(successMessage, 'success');
+    showMessage(propertyId ? 'Property updated successfully.' : 'Property added successfully.', 'success');
     loadProperties(searchInput.value, statusFilter.value);
   } catch (error) {
     console.error('Save property error:', error);
@@ -160,31 +124,23 @@ propertyForm.addEventListener('submit', async (event) => {
   }
 });
 
-searchInput.addEventListener('input', (event) => {
-  loadProperties(event.target.value, statusFilter.value);
-});
-
-statusFilter.addEventListener('change', (event) => {
-  loadProperties(searchInput.value, event.target.value);
-});
+searchInput.addEventListener('input', (event) => loadProperties(event.target.value, statusFilter.value));
+statusFilter.addEventListener('change', (event) => loadProperties(searchInput.value, event.target.value));
 
 tableBody.addEventListener('click', async (event) => {
   const target = event.target;
   if (!target.dataset.action) return;
-
   const propertyId = target.dataset.id;
 
   if (target.dataset.action === 'delete') {
-    // Ask the user before deleting a property.
-    const confirmed = window.confirm('Are you sure you want to delete this property?');
-    if (!confirmed) return;
-
+    if (!window.confirm('Are you sure you want to delete this property?')) return;
     try {
-      const response = await fetch(`/api/properties/${propertyId}`, { method: 'DELETE' });
-      const data = await response.json();
-      if (!response.ok) {
-        showMessage(data.message || 'Property could not be deleted.', 'error');
-        return;
+      if (window.HargeisaDemo?.enabled) {
+        window.HargeisaDemo.deleteProperty(propertyId);
+      } else {
+        const response = await fetch(`/api/properties/${propertyId}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (!response.ok) return showMessage(data.message || 'Property could not be deleted.', 'error');
       }
       showMessage('Property deleted successfully.', 'success');
       loadProperties(searchInput.value, statusFilter.value);
@@ -196,8 +152,10 @@ tableBody.addEventListener('click', async (event) => {
 
   if (target.dataset.action === 'edit') {
     try {
-      const response = await fetch(`/api/properties/${propertyId}`);
-      const property = await response.json();
+      const property = window.HargeisaDemo?.enabled
+        ? window.HargeisaDemo.getProperty(propertyId)
+        : await (await fetch(`/api/properties/${propertyId}`)).json();
+      if (!property) throw new Error('Property not found.');
 
       document.getElementById('propertyId').value = property.id;
       document.getElementById('propertyCode').value = property.property_code;
