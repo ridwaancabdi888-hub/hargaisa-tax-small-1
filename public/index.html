@@ -20,16 +20,16 @@
         <!-- Login form with username and password inputs -->
         <form id="loginForm">
           <label for="username">Username</label>
-          <input type="text" id="username" name="username" placeholder="Enter username" required />
+          <input type="text" id="username" name="username" placeholder="Enter username" autocomplete="username" required />
 
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Enter password" required />
+          <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password" required />
 
           <button type="submit">Login</button>
         </form>
 
         <!-- Message area for success or error messages -->
-        <p id="loginMessage" class="message"></p>
+        <p id="loginMessage" class="message" aria-live="polite"></p>
       </div>
     </div>
 
