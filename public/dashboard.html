@@ -13,7 +13,6 @@
   </head>
   <body>
     <div class="app-layout">
-      <!-- Sidebar navigation - appears on all pages -->
       <aside class="sidebar">
         <h2>Hargeisa Property Tax</h2>
         <nav>
@@ -32,29 +31,17 @@
           <span id="currentUser">Admin</span>
         </header>
 
-        <!-- Statistics cards that display key metrics -->
         <section class="stats-grid">
-          <div class="stat-card">
-            <h3>Total Properties</h3>
-            <p id="totalProperties">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Paid Properties</h3>
-            <p id="paidProperties">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Unpaid Properties</h3>
-            <p id="unpaidProperties">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Total Tax Collected</h3>
-            <p id="totalTaxCollected">$0</p>
-          </div>
+          <div class="stat-card"><h3>Total Properties</h3><p id="totalProperties">0</p></div>
+          <div class="stat-card"><h3>Paid Properties</h3><p id="paidProperties">0</p></div>
+          <div class="stat-card"><h3>Unpaid Properties</h3><p id="unpaidProperties">0</p></div>
+          <div class="stat-card"><h3>Total Tax Collected</h3><p id="totalTaxCollected">$0</p></div>
         </section>
       </main>
     </div>
 
-    <!-- JavaScript to load and display dashboard data -->
+    <!-- Hosted demo persistence helper; inactive on localhost. -->
+    <script src="js/demo-store.js"></script>
     <script src="js/dashboard.js"></script>
   </body>
 </html>
