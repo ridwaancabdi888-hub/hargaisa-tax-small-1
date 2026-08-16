@@ -38,6 +38,11 @@ async function loadReports() {
 
     reportTableBody.innerHTML = '';
 
+    if (!data.properties.length) {
+      reportTableBody.innerHTML = '<tr><td colspan="6">No property records available.</td></tr>';
+      return;
+    }
+
     data.properties.forEach((property) => {
       const row = document.createElement('tr');
       row.innerHTML = `
