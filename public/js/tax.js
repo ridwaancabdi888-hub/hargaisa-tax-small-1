@@ -18,9 +18,7 @@ function getStatusBadge(status) {
 
 function checkLogin() {
   const user = JSON.parse(localStorage.getItem('adminUser') || 'null');
-  if (!user) {
-    window.location.href = 'index.html';
-  }
+  if (!user) window.location.href = 'index.html';
 }
 
 logoutBtn.addEventListener('click', (event) => {
@@ -31,11 +29,11 @@ logoutBtn.addEventListener('click', (event) => {
 
 async function loadPropertiesForPayment() {
   try {
-    const response = await fetch('/api/properties');
-    const data = await response.json();
+    const data = window.HargeisaDemo?.enabled
+      ? window.HargeisaDemo.getProperties()
+      : await (await fetch('/api/properties')).json();
 
     propertySelect.innerHTML = '<option value="">Select property</option>';
-
     data.forEach((property) => {
       const option = document.createElement('option');
       option.value = property.id;
@@ -50,11 +48,11 @@ async function loadPropertiesForPayment() {
 
 async function loadTaxRecords() {
   try {
-    const response = await fetch('/api/taxes');
-    const data = await response.json();
+    const data = window.HargeisaDemo?.enabled
+      ? window.HargeisaDemo.getTaxes()
+      : await (await fetch('/api/taxes')).json();
 
     taxTableBody.innerHTML = '';
-
     if (!data.length) {
       taxTableBody.innerHTML = '<tr><td colspan="5">No tax records yet.</td></tr>';
       return;
@@ -67,8 +65,7 @@ async function loadTaxRecords() {
         <td>${row.owner_name}</td>
         <td>$${Number(row.tax_amount).toFixed(2)}</td>
         <td>${getStatusBadge(row.tax_status || 'Unpaid')}</td>
-        <td>${row.payment_date ? new Date(row.payment_date).toLocaleDateString() : 'Not paid'}</td>
-      `;
+        <td>${row.payment_date ? new Date(row.payment_date).toLocaleDateString() : 'Not paid'}</td>`;
       taxTableBody.appendChild(tableRow);
     });
   } catch (error) {
@@ -79,7 +76,6 @@ async function loadTaxRecords() {
 
 paymentForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-
   const propertyId = propertySelect.value;
   const amount = document.getElementById('paymentAmount').value;
   const paymentDate = document.getElementById('paymentDate').value;
@@ -90,17 +86,16 @@ paymentForm.addEventListener('submit', async (event) => {
   }
 
   try {
-    const response = await fetch('/api/taxes/pay', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ property_id: propertyId, amount, payment_date: paymentDate })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      showMessage(data.message || 'Unable to record payment.', 'error');
-      return;
+    if (window.HargeisaDemo?.enabled) {
+      window.HargeisaDemo.recordPayment(propertyId, amount, paymentDate);
+    } else {
+      const response = await fetch('/api/taxes/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ property_id: propertyId, amount, payment_date: paymentDate })
+      });
+      const data = await response.json();
+      if (!response.ok) return showMessage(data.message || 'Unable to record payment.', 'error');
     }
 
     showMessage('Payment recorded successfully.', 'success');
