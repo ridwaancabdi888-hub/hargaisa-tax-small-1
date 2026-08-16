@@ -259,6 +259,10 @@ button:hover {
   overflow-x: auto;
 }
 
+.table-card table {
+  min-width: 720px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
