@@ -1,0 +1,60 @@
+<!-- 
+  Dashboard Page
+  Shows summary statistics for properties and tax collection
+  Includes sidebar navigation and logout button
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Hargeisa Property Tax</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- Sidebar navigation - appears on all pages -->
+      <aside class="sidebar">
+        <h2>Hargeisa Tax</h2>
+        <nav>
+          <a href="dashboard.html" class="active">Dashboard</a>
+          <a href="properties.html">Properties</a>
+          <a href="tax.html">Tax Management</a>
+          <a href="map.html">GIS Map</a>
+          <a href="reports.html">Reports</a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <h1>Dashboard</h1>
+          <span id="currentUser">Admin</span>
+        </header>
+
+        <!-- Statistics cards that display key metrics -->
+        <section class="stats-grid">
+          <div class="stat-card">
+            <h3>Total Properties</h3>
+            <p id="totalProperties">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Paid Properties</h3>
+            <p id="paidProperties">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Unpaid Properties</h3>
+            <p id="unpaidProperties">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Total Tax Collected</h3>
+            <p id="totalTaxCollected">$0</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- JavaScript to load and display dashboard data -->
+    <script src="js/dashboard.js"></script>
+  </body>
+</html>

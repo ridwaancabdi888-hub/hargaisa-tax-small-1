@@ -1,0 +1,39 @@
+<!-- 
+  Login Page
+  Hargeisa Property Tax Management System
+  Used by administrators to enter their username and password
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hargeisa Property Tax | Login</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="login-body">
+    <div class="login-wrapper">
+      <div class="login-card">
+        <h1>Hargeisa Property Tax</h1>
+        <p class="subtitle">Admin Login</p>
+
+        <!-- Login form with username and password inputs -->
+        <form id="loginForm">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter username" required />
+
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter password" required />
+
+          <button type="submit">Login</button>
+        </form>
+
+        <!-- Message area for success or error messages -->
+        <p id="loginMessage" class="message"></p>
+      </div>
+    </div>
+
+    <!-- Script that handles login logic -->
+    <script src="js/login.js"></script>
+  </body>
+</html>

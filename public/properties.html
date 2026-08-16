@@ -1,0 +1,127 @@
+<!-- 
+  Property Management Page
+  Used to view, add, edit, search, and delete properties
+  Includes a form to add new properties and a table to display them
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Properties | Hargeisa Property Tax</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <aside class="sidebar">
+        <h2>Hargeisa Tax</h2>
+        <nav>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="properties.html" class="active">Properties</a>
+          <a href="tax.html">Tax Management</a>
+          <a href="map.html">GIS Map</a>
+          <a href="reports.html">Reports</a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <h1>Property Management</h1>
+        </header>
+
+        <section class="card">
+          <h3>Add Property</h3>
+          <div id="propertyMessage" class="form-message" aria-live="polite"></div>
+          <form id="propertyForm" class="property-form">
+            <input type="hidden" id="propertyId" />
+            <div class="grid-2">
+              <div>
+                <label>Property ID</label>
+                <input type="text" id="propertyCode" placeholder="HPT-009" />
+              </div>
+              <div>
+                <label>Owner Name</label>
+                <input type="text" id="ownerName" required />
+              </div>
+              <div>
+                <label>Phone Number</label>
+                <input type="text" id="phone" required />
+              </div>
+              <div>
+                <label>District</label>
+                <input type="text" id="district" required />
+              </div>
+              <div>
+                <label>Property Type</label>
+                <select id="propertyType" required>
+                  <option value="House">House</option>
+                  <option value="Shop">Shop</option>
+                  <option value="Office">Office</option>
+                  <option value="Land">Land</option>
+                </select>
+              </div>
+              <div>
+                <label>Tax Amount</label>
+                <input type="number" id="taxAmount" step="0.01" required />
+              </div>
+              <div>
+                <label>Tax Status</label>
+                <select id="taxStatus">
+                  <option value="Unpaid">Unpaid</option>
+                  <option value="Paid">Paid</option>
+                </select>
+              </div>
+              <div>
+                <label>Latitude</label>
+                <input type="number" id="latitude" step="0.000001" required />
+              </div>
+              <div>
+                <label>Longitude</label>
+                <input type="number" id="longitude" step="0.000001" required />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary-btn">Save Property</button>
+              <button type="button" id="resetBtn" class="secondary-btn">Reset</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card table-card">
+          <div class="table-header">
+            <h3>Property List</h3>
+            <div class="filter-row">
+              <input type="text" id="searchInput" placeholder="Search by ID, owner, district" />
+              <select id="statusFilter">
+                <option value="All">All</option>
+                <option value="Paid">Paid</option>
+                <option value="Unpaid">Unpaid</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Property ID</th>
+                <th>Owner Name</th>
+                <th>Phone</th>
+                <th>District</th>
+                <th>Type</th>
+                <th>Tax Amount</th>
+                <th>Status</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="propertyTableBody"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/properties.js"></script>
+  </body>
+</html>

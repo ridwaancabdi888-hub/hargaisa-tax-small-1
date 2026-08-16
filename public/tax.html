@@ -1,0 +1,78 @@
+<!-- 
+  Tax Management Page
+  Used to record tax payments for properties
+  Shows a form to select a property and enter payment details
+  Displays all tax payment records in a table
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tax Management | Hargeisa Property Tax</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <aside class="sidebar">
+        <h2>Hargeisa Tax</h2>
+        <nav>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="properties.html">Properties</a>
+          <a href="tax.html" class="active">Tax Management</a>
+          <a href="map.html">GIS Map</a>
+          <a href="reports.html">Reports</a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <h1>Tax Management</h1>
+        </header>
+
+        <section class="card">
+          <h3>Record Payment</h3>
+          <div id="paymentMessage" class="form-message" aria-live="polite"></div>
+          <form id="paymentForm" class="property-form">
+            <div class="grid-3">
+              <div>
+                <label>Property ID</label>
+                <select id="propertySelect" required></select>
+              </div>
+              <div>
+                <label>Tax Amount</label>
+                <input type="number" id="paymentAmount" step="0.01" required />
+              </div>
+              <div>
+                <label>Payment Date</label>
+                <input type="date" id="paymentDate" required />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary-btn">Record Payment</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card table-card">
+          <h3>Tax Records</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Property ID</th>
+                <th>Owner</th>
+                <th>Tax Amount</th>
+                <th>Tax Status</th>
+                <th>Payment Date</th>
+              </tr>
+            </thead>
+            <tbody id="taxTableBody"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/tax.js"></script>
+  </body>
+</html>

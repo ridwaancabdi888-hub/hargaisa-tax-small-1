@@ -1,0 +1,73 @@
+<!-- 
+  Reports Page
+  Shows detailed summary statistics and a complete list of all properties
+  Displays statistics cards and a table with all property records
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports | Hargeisa Property Tax</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <aside class="sidebar">
+        <h2>Hargeisa Tax</h2>
+        <nav>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="properties.html">Properties</a>
+          <a href="tax.html">Tax Management</a>
+          <a href="map.html">GIS Map</a>
+          <a href="reports.html" class="active">Reports</a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <h1>Reports</h1>
+        </header>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <h3>Total Properties</h3>
+            <p id="reportTotal">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Paid Properties</h3>
+            <p id="reportPaid">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Unpaid Properties</h3>
+            <p id="reportUnpaid">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Total Tax Collected</h3>
+            <p id="reportCollected">$0</p>
+          </div>
+        </section>
+
+        <section class="card table-card">
+          <h3>Property and Tax Table</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Property ID</th>
+                <th>Owner</th>
+                <th>District</th>
+                <th>Type</th>
+                <th>Tax Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/reports.js"></script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "hargeisa-property-tax",
+  "version": "1.0.0",
+  "description": "Simple property tax management system for Hargeisa",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "property",
+    "tax",
+    "hargeisa",
+    "node",
+    "mysql"
+  ],
+  "author": "Hargeisa Tax Project",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "mysql2": "^3.23.3"
+  }
+}

@@ -1,0 +1,12 @@
+// Quick test: does assigning same URL cause reload?
+// This mimics what happens in login.js
+
+console.log('Current URL:', window.location.href);
+console.log('If redirectToLoginIfNeeded() runs without logged-in user on index.html:');
+console.log('  It will do: window.location.href = "index.html"');
+console.log('  While already at index.html');
+console.log('  This RELOADS the page');
+console.log('  Which re-executes login.js');
+console.log('  Which calls redirectToLoginIfNeeded() again');
+console.log('  Which reloads the page again');
+console.log('  INFINITE LOOP!');
