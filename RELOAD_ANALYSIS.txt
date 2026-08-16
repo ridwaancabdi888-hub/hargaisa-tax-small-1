@@ -1,12 +1,20 @@
-// Quick test: does assigning same URL cause reload?
-// This mimics what happens in login.js
+// Reload-loop diagnostic notes
+// This file documents the earlier redirect problem for learning and troubleshooting.
+// It is not executed by the application.
+
+// Quick test: does assigning the same URL cause a reload?
+// This mimics the behavior that originally happened in login.js.
 
 console.log('Current URL:', window.location.href);
-console.log('If redirectToLoginIfNeeded() runs without logged-in user on index.html:');
+console.log('If redirectToLoginIfNeeded() runs without a logged-in user on index.html:');
 console.log('  It will do: window.location.href = "index.html"');
 console.log('  While already at index.html');
-console.log('  This RELOADS the page');
+console.log('  This reloads the page');
 console.log('  Which re-executes login.js');
 console.log('  Which calls redirectToLoginIfNeeded() again');
 console.log('  Which reloads the page again');
-console.log('  INFINITE LOOP!');
+console.log('  Result: an infinite reload loop');
+
+// Current project note:
+// Protected pages should redirect unauthenticated users to index.html,
+// while index.html itself must remain accessible and should not redirect to itself.
