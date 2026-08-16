@@ -81,7 +81,7 @@
   console.log('\nThe page will no longer continuously reload.');
   console.log('All functionality preserved: login, navigation, protection, APIs.');
   
-  process.exit(0);
+  process.exit(allPass ? 0 : 1);
 })().catch(err => {
   console.error('Error:', err);
   process.exit(1);
