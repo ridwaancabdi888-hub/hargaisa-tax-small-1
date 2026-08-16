@@ -25,6 +25,14 @@ The system allows an administrator to:
 - MySQL from XAMPP
 - Leaflet.js
 
+## Requirements
+
+Before running the project, make sure these are available:
+- Node.js 18 or newer
+- npm
+- XAMPP with MySQL running
+- A modern web browser
+
 ## Project Structure
 
 - public/ - HTML pages and frontend JavaScript files
@@ -60,6 +68,10 @@ Get-Content "database\database.sql" | "C:\xampp\mysql\bin\mysql.exe" -u root
 ```
 
 This will create the database, tables, admin user, and demo data.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and update the values only if your local setup is different. The default MySQL port is `3306` and the app runs on port `3000`.
 
 ## Install Project Dependencies
 
