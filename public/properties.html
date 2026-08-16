@@ -37,23 +37,23 @@
             <input type="hidden" id="propertyId" />
             <div class="grid-2">
               <div>
-                <label>Property ID</label>
+                <label for="propertyCode">Property ID</label>
                 <input type="text" id="propertyCode" placeholder="HPT-009" />
               </div>
               <div>
-                <label>Owner Name</label>
+                <label for="ownerName">Owner Name</label>
                 <input type="text" id="ownerName" required />
               </div>
               <div>
-                <label>Phone Number</label>
+                <label for="phone">Phone Number</label>
                 <input type="text" id="phone" required />
               </div>
               <div>
-                <label>District</label>
+                <label for="district">District</label>
                 <input type="text" id="district" required />
               </div>
               <div>
-                <label>Property Type</label>
+                <label for="propertyType">Property Type</label>
                 <select id="propertyType" required>
                   <option value="House">House</option>
                   <option value="Shop">Shop</option>
@@ -62,22 +62,22 @@
                 </select>
               </div>
               <div>
-                <label>Tax Amount</label>
+                <label for="taxAmount">Tax Amount</label>
                 <input type="number" id="taxAmount" step="0.01" required />
               </div>
               <div>
-                <label>Tax Status</label>
+                <label for="taxStatus">Tax Status</label>
                 <select id="taxStatus">
                   <option value="Unpaid">Unpaid</option>
                   <option value="Paid">Paid</option>
                 </select>
               </div>
               <div>
-                <label>Latitude</label>
+                <label for="latitude">Latitude</label>
                 <input type="number" id="latitude" step="0.000001" required />
               </div>
               <div>
-                <label>Longitude</label>
+                <label for="longitude">Longitude</label>
                 <input type="number" id="longitude" step="0.000001" required />
               </div>
             </div>
@@ -92,8 +92,8 @@
           <div class="table-header">
             <h3>Property List</h3>
             <div class="filter-row">
-              <input type="text" id="searchInput" placeholder="Search by ID, owner, district" />
-              <select id="statusFilter">
+              <input type="text" id="searchInput" placeholder="Search by ID, owner, district" aria-label="Search properties" />
+              <select id="statusFilter" aria-label="Filter properties by tax status">
                 <option value="All">All</option>
                 <option value="Paid">Paid</option>
                 <option value="Unpaid">Unpaid</option>
