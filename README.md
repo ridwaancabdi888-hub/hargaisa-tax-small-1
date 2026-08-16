@@ -89,6 +89,15 @@ Then open:
 
 http://localhost:3000
 
+## Quick Health Check
+
+After the server starts, verify these two URLs in the browser:
+
+- `http://localhost:3000` should show the login page.
+- `http://localhost:3000/api/dashboard` should return dashboard data as JSON.
+
+If the API does not respond, confirm that MySQL is running in XAMPP and that the `.env` database settings are correct.
+
 ## Default Admin Login
 
 - Username: admin
