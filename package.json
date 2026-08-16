@@ -7,6 +7,9 @@
     "start": "node server.js",
     "dev": "node server.js"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "keywords": [
     "property",
     "tax",
