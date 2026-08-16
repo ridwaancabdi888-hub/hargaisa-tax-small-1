@@ -98,6 +98,13 @@ After the server starts, verify these two URLs in the browser:
 
 If the API does not respond, confirm that MySQL is running in XAMPP and that the `.env` database settings are correct.
 
+## Beginner Troubleshooting
+
+- If `npm install` fails, check that Node.js and npm are installed with `node -v` and `npm -v`.
+- If the app says the database connection failed, start MySQL in XAMPP and recheck `.env`.
+- If port `3000` is already in use, change `PORT` in `.env` and open the new port in the browser.
+- If the map is blank, confirm that the computer has internet access because Leaflet loads OpenStreetMap tiles online.
+
 ## Default Admin Login
 
 - Username: admin
