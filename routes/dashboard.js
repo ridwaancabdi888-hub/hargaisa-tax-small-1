@@ -1,23 +1,18 @@
 // ============================================
 // Dashboard and Reports Routes
-// API endpoints that return statistics and data summaries
 // ============================================
-
-// Import required packages
-const express = require('express');        // Create API endpoints
-const db = require('../config/database');  // Connect to MySQL
+const express = require('express');
+const db = require('../config/database');
+const demoStore = require('../data/demoStore');
 
 const router = express.Router();
+const isDemo = () => process.env.VERCEL || process.env.DEMO_MODE === 'true';
 
 // GET /api/dashboard
-// Return dashboard statistics: total properties, paid/unpaid count, tax collected
 router.get('/dashboard', async (req, res) => {
+  if (isDemo()) return res.json(demoStore.getStats());
+
   try {
-    // Run a single SQL query to calculate all dashboard statistics at once
-    // COUNT(*) = total number of properties
-    // SUM(CASE...) = count properties where tax_status = 'Paid'
-    // SUM(CASE...) = count properties where tax_status = 'Unpaid'
-    // SUM(tax_amount WHERE Paid) = total tax money collected
     const [stats] = await db.execute(`
       SELECT
         COUNT(*) AS total_properties,
@@ -26,10 +21,7 @@ router.get('/dashboard', async (req, res) => {
         SUM(CASE WHEN tax_status = 'Paid' THEN tax_amount ELSE 0 END) AS total_tax_collected
       FROM properties
     `);
-
     const result = stats[0];
-
-    // Return statistics in a readable format
     return res.json({
       totalProperties: Number(result.total_properties || 0),
       paidProperties: Number(result.paid_properties || 0),
@@ -43,10 +35,12 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // GET /api/reports
-// Return detailed reports with statistics AND complete list of properties
 router.get('/reports', async (req, res) => {
+  if (isDemo()) {
+    return res.json({ stats: demoStore.getStats(), properties: demoStore.properties });
+  }
+
   try {
-    // Get the same statistics as dashboard
     const [stats] = await db.execute(`
       SELECT
         COUNT(*) AS total_properties,
@@ -55,15 +49,7 @@ router.get('/reports', async (req, res) => {
         SUM(CASE WHEN tax_status = 'Paid' THEN tax_amount ELSE 0 END) AS total_tax_collected
       FROM properties
     `);
-
-    // Also get the full list of all properties (newest first)
-    const [properties] = await db.execute(`
-      SELECT *
-      FROM properties
-      ORDER BY created_at DESC
-    `);
-
-    // Return both statistics and property list
+    const [properties] = await db.execute('SELECT * FROM properties ORDER BY created_at DESC');
     return res.json({
       stats: {
         totalProperties: Number(stats[0].total_properties || 0),
