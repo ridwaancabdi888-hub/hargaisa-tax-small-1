@@ -89,6 +89,16 @@ Then open:
 
 http://localhost:3000
 
+## Run the Verification Script
+
+With the local server still running, open a second terminal and run:
+
+```bash
+npm run verify
+```
+
+This checks the main pages and API endpoints on `http://localhost:3000` and returns a failure exit code if an endpoint check fails.
+
 ## Quick Health Check
 
 After the server starts, verify these two URLs in the browser:
