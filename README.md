@@ -63,11 +63,11 @@ hargeisa_property_tax
 
 From the project folder, run:
 
-```bash
-Get-Content "database\database.sql" | "C:\xampp\mysql\bin\mysql.exe" -u root
+```powershell
+Get-Content ".\database\database.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
 ```
 
-This will create the database, tables, admin user, and demo data.
+This PowerShell command creates the database, tables, admin user, and demo data.
 
 ## Environment Variables
 
