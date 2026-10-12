@@ -116,3 +116,57 @@ test('recording a demo payment updates both tax and dashboard responses', async 
   assert.equal(dashboardResult.body.unpaidProperties, 3);
   assert.equal(dashboardResult.body.totalTaxCollected, 840);
 });
+
+test('property writes reject invalid numbers without changing demo data', async () => {
+  const beforeCount = demoStore.properties.length;
+  const invalidCreate = await request('/api/properties', {
+    method: 'POST',
+    body: JSON.stringify({
+      owner_name: 'Invalid Owner',
+      phone: '063999999',
+      district: '26 June',
+      property_type: 'House',
+      tax_amount: -10,
+      latitude: 95,
+      longitude: 44
+    })
+  });
+
+  assert.equal(invalidCreate.response.status, 400);
+  assert.equal(demoStore.properties.length, beforeCount);
+
+  const invalidUpdate = await request('/api/properties/1', {
+    method: 'PUT',
+    body: JSON.stringify({ longitude: 181 })
+  });
+  assert.equal(invalidUpdate.response.status, 400);
+  assert.equal(demoStore.properties[0].longitude, initialProperties[0].longitude);
+});
+
+test('property routes reject malformed identifiers', async () => {
+  for (const path of ['/api/properties/not-a-number', '/api/properties/0', '/api/properties/1.5']) {
+    const { response, body } = await request(path);
+    assert.equal(response.status, 400);
+    assert.match(body.message, /positive integer/);
+  }
+});
+
+test('payments reject invalid amounts and dates without changing demo data', async () => {
+  const beforeCount = demoStore.payments.length;
+  const cases = [
+    { property_id: 2, amount: -1, payment_date: '2026-10-12' },
+    { property_id: 2, amount: 150, payment_date: '2026-02-30' },
+    { property_id: '2.5', amount: 150, payment_date: '2026-10-12' }
+  ];
+
+  for (const payload of cases) {
+    const { response } = await request('/api/taxes/pay', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    assert.equal(response.status, 400);
+  }
+
+  assert.equal(demoStore.payments.length, beforeCount);
+  assert.equal(demoStore.properties.find((property) => property.id === 2).tax_status, 'Unpaid');
+});

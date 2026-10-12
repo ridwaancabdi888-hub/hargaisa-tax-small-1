@@ -4,6 +4,11 @@
 const express = require('express');
 const db = require('../config/database');
 const demoStore = require('../data/demoStore');
+const {
+  isValidDateOnly,
+  parsePositiveInteger,
+  parsePositiveNumber
+} = require('../lib/validation');
 
 const router = express.Router();
 const isDemo = () => process.env.VERCEL || process.env.DEMO_MODE === 'true';
@@ -45,20 +50,31 @@ router.get('/taxes', async (req, res) => {
 router.post('/taxes/pay', async (req, res) => {
   const { property_id, amount, payment_date } = req.body;
 
-  if (!property_id || !amount || !payment_date) {
+  if (property_id === undefined || amount === undefined || !payment_date) {
     return res.status(400).json({ message: 'Property ID, amount and date are required.' });
   }
 
+  const propertyId = parsePositiveInteger(property_id);
+  const paymentAmount = parsePositiveNumber(amount);
+  if (propertyId === null) {
+    return res.status(400).json({ message: 'Property ID must be a positive integer.' });
+  }
+  if (paymentAmount === null) {
+    return res.status(400).json({ message: 'Payment amount must be a positive number.' });
+  }
+  if (!isValidDateOnly(payment_date)) {
+    return res.status(400).json({ message: 'Payment date must be a valid YYYY-MM-DD date.' });
+  }
+
   if (isDemo()) {
-    const id = Number(property_id);
-    const property = demoStore.properties.find((item) => item.id === id);
+    const property = demoStore.properties.find((item) => item.id === propertyId);
     if (!property) return res.status(404).json({ message: 'Property not found.' });
 
     property.tax_status = 'Paid';
     demoStore.payments.push({
       id: demoStore.payments.length + 1,
-      property_id: id,
-      amount: Number(amount),
+      property_id: propertyId,
+      amount: paymentAmount,
       payment_date,
       status: 'Paid'
     });
@@ -67,14 +83,14 @@ router.post('/taxes/pay', async (req, res) => {
   }
 
   try {
-    const [propertyRows] = await db.execute('SELECT * FROM properties WHERE id = ?', [property_id]);
+    const [propertyRows] = await db.execute('SELECT * FROM properties WHERE id = ?', [propertyId]);
     if (propertyRows.length === 0) return res.status(404).json({ message: 'Property not found.' });
 
     await db.execute(
       'INSERT INTO tax_payments (property_id, amount, payment_date, status) VALUES (?, ?, ?, ?)',
-      [property_id, amount, payment_date, 'Paid']
+      [propertyId, paymentAmount, payment_date, 'Paid']
     );
-    await db.execute('UPDATE properties SET tax_status = ? WHERE id = ?', ['Paid', property_id]);
+    await db.execute('UPDATE properties SET tax_status = ? WHERE id = ?', ['Paid', propertyId]);
 
     return res.json({ success: true, message: 'Payment recorded successfully.' });
   } catch (error) {

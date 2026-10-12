@@ -4,6 +4,11 @@
 const express = require('express');
 const db = require('../config/database');
 const demoStore = require('../data/demoStore');
+const {
+  parseCoordinate,
+  parsePositiveInteger,
+  parsePositiveNumber
+} = require('../lib/validation');
 
 const router = express.Router();
 const isDemo = () => process.env.VERCEL || process.env.DEMO_MODE === 'true';
@@ -42,7 +47,8 @@ router.get('/properties', async (req, res) => {
 
 // GET /api/properties/:id
 router.get('/properties/:id', async (req, res) => {
-  const id = Number(req.params.id);
+  const id = parsePositiveInteger(req.params.id);
+  if (id === null) return res.status(400).json({ message: 'Property ID must be a positive integer.' });
 
   if (isDemo()) {
     const property = demoStore.properties.find((item) => item.id === id);
@@ -63,8 +69,21 @@ router.get('/properties/:id', async (req, res) => {
 router.post('/properties', async (req, res) => {
   const { property_code, owner_name, phone, district, property_type, tax_amount, tax_status, latitude, longitude } = req.body;
 
-  if (!owner_name || !phone || !district || !property_type || !tax_amount || !latitude || !longitude) {
+  if (![owner_name, phone, district, property_type].every((value) => typeof value === 'string' && value.trim())) {
     return res.status(400).json({ message: 'Please fill in all required property fields.' });
+  }
+
+  const normalizedTaxAmount = parsePositiveNumber(tax_amount);
+  const normalizedLatitude = parseCoordinate(latitude, -90, 90);
+  const normalizedLongitude = parseCoordinate(longitude, -180, 180);
+  if (normalizedTaxAmount === null) {
+    return res.status(400).json({ message: 'Tax amount must be a positive number.' });
+  }
+  if (normalizedLatitude === null || normalizedLongitude === null) {
+    return res.status(400).json({ message: 'Latitude or longitude is outside the valid range.' });
+  }
+  if (tax_status && !['Paid', 'Unpaid'].includes(tax_status)) {
+    return res.status(400).json({ message: 'Tax status must be Paid or Unpaid.' });
   }
 
   if (isDemo()) {
@@ -75,10 +94,10 @@ router.post('/properties', async (req, res) => {
       phone,
       district,
       property_type,
-      tax_amount: Number(tax_amount),
+      tax_amount: normalizedTaxAmount,
       tax_status: tax_status || 'Unpaid',
-      latitude: Number(latitude),
-      longitude: Number(longitude),
+      latitude: normalizedLatitude,
+      longitude: normalizedLongitude,
       created_at: new Date().toISOString()
     };
     demoStore.properties.unshift(newProperty);
@@ -91,7 +110,7 @@ router.post('/properties', async (req, res) => {
     const [result] = await db.execute(
       `INSERT INTO properties (property_code, owner_name, phone, district, property_type, tax_amount, tax_status, latitude, longitude)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [code, owner_name, phone, district, property_type, tax_amount, status, latitude, longitude]
+      [code, owner_name, phone, district, property_type, normalizedTaxAmount, status, normalizedLatitude, normalizedLongitude]
     );
     const [rows] = await db.execute('SELECT * FROM properties WHERE id = ?', [result.insertId]);
     return res.status(201).json(rows[0]);
@@ -103,13 +122,33 @@ router.post('/properties', async (req, res) => {
 
 // PUT /api/properties/:id
 router.put('/properties/:id', async (req, res) => {
-  const id = Number(req.params.id);
+  const id = parsePositiveInteger(req.params.id);
+  if (id === null) return res.status(400).json({ message: 'Property ID must be a positive integer.' });
   const fields = req.body;
+
+  if (Object.hasOwn(fields, 'tax_amount') && parsePositiveNumber(fields.tax_amount) === null) {
+    return res.status(400).json({ message: 'Tax amount must be a positive number.' });
+  }
+  if (Object.hasOwn(fields, 'latitude') && parseCoordinate(fields.latitude, -90, 90) === null) {
+    return res.status(400).json({ message: 'Latitude is outside the valid range.' });
+  }
+  if (Object.hasOwn(fields, 'longitude') && parseCoordinate(fields.longitude, -180, 180) === null) {
+    return res.status(400).json({ message: 'Longitude is outside the valid range.' });
+  }
+  if (Object.hasOwn(fields, 'tax_status') && !['Paid', 'Unpaid'].includes(fields.tax_status)) {
+    return res.status(400).json({ message: 'Tax status must be Paid or Unpaid.' });
+  }
 
   if (isDemo()) {
     const index = demoStore.properties.findIndex((item) => item.id === id);
     if (index === -1) return res.status(404).json({ message: 'Property not found.' });
-    demoStore.properties[index] = { ...demoStore.properties[index], ...fields, id };
+    const normalizedFields = {
+      ...fields,
+      ...(Object.hasOwn(fields, 'tax_amount') && { tax_amount: Number(fields.tax_amount) }),
+      ...(Object.hasOwn(fields, 'latitude') && { latitude: Number(fields.latitude) }),
+      ...(Object.hasOwn(fields, 'longitude') && { longitude: Number(fields.longitude) })
+    };
+    demoStore.properties[index] = { ...demoStore.properties[index], ...normalizedFields, id };
     return res.json(demoStore.properties[index]);
   }
 
@@ -129,7 +168,8 @@ router.put('/properties/:id', async (req, res) => {
 
 // DELETE /api/properties/:id
 router.delete('/properties/:id', async (req, res) => {
-  const id = Number(req.params.id);
+  const id = parsePositiveInteger(req.params.id);
+  if (id === null) return res.status(400).json({ message: 'Property ID must be a positive integer.' });
 
   if (isDemo()) {
     const index = demoStore.properties.findIndex((item) => item.id === id);
