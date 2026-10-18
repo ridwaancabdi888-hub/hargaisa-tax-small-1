@@ -4,6 +4,7 @@ const paymentForm = document.getElementById('paymentForm');
 const taxTableBody = document.getElementById('taxTableBody');
 const logoutBtn = document.getElementById('logoutBtn');
 const paymentMessage = document.getElementById('paymentMessage');
+const { fetchJson } = window.HargeisaApi;
 
 function showMessage(message, type = 'success') {
   paymentMessage.textContent = message;
@@ -31,7 +32,7 @@ async function loadPropertiesForPayment() {
   try {
     const data = window.HargeisaDemo?.enabled
       ? window.HargeisaDemo.getProperties()
-      : await (await fetch('/api/properties')).json();
+      : await fetchJson('/api/properties');
 
     propertySelect.innerHTML = '<option value="">Select property</option>';
     data.forEach((property) => {
@@ -42,7 +43,7 @@ async function loadPropertiesForPayment() {
     });
   } catch (error) {
     console.error('Property select load error:', error);
-    showMessage('Unable to load properties.', 'error');
+    showMessage(error.message || 'Unable to load properties.', 'error');
   }
 }
 
@@ -50,7 +51,7 @@ async function loadTaxRecords() {
   try {
     const data = window.HargeisaDemo?.enabled
       ? window.HargeisaDemo.getTaxes()
-      : await (await fetch('/api/taxes')).json();
+      : await fetchJson('/api/taxes');
 
     taxTableBody.innerHTML = '';
     if (!data.length) {
@@ -70,7 +71,7 @@ async function loadTaxRecords() {
     });
   } catch (error) {
     console.error('Tax record load error:', error);
-    showMessage('Unable to load tax records.', 'error');
+    showMessage(error.message || 'Unable to load tax records.', 'error');
   }
 }
 
@@ -89,13 +90,11 @@ paymentForm.addEventListener('submit', async (event) => {
     if (window.HargeisaDemo?.enabled) {
       window.HargeisaDemo.recordPayment(propertyId, amount, paymentDate);
     } else {
-      const response = await fetch('/api/taxes/pay', {
+      await fetchJson('/api/taxes/pay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ property_id: propertyId, amount, payment_date: paymentDate })
       });
-      const data = await response.json();
-      if (!response.ok) return showMessage(data.message || 'Unable to record payment.', 'error');
     }
 
     showMessage('Payment recorded successfully.', 'success');
@@ -104,7 +103,7 @@ paymentForm.addEventListener('submit', async (event) => {
     loadPropertiesForPayment();
   } catch (error) {
     console.error('Payment submit error:', error);
-    showMessage('Unable to record payment.', 'error');
+    showMessage(error.message || 'Unable to record payment.', 'error');
   }
 });
 

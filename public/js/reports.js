@@ -5,6 +5,7 @@ const reportUnpaid = document.getElementById('reportUnpaid');
 const reportCollected = document.getElementById('reportCollected');
 const reportTableBody = document.getElementById('reportTableBody');
 const logoutBtn = document.getElementById('logoutBtn');
+const { fetchJson } = window.HargeisaApi;
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-US', {
@@ -28,7 +29,7 @@ async function loadReports() {
   try {
     const data = window.HargeisaDemo?.enabled
       ? { stats: window.HargeisaDemo.getStats(), properties: window.HargeisaDemo.getProperties() }
-      : await (await fetch('/api/reports')).json();
+      : await fetchJson('/api/reports');
 
     reportTotal.textContent = data.stats.totalProperties;
     reportPaid.textContent = data.stats.paidProperties;

@@ -9,6 +9,7 @@ const unpaidPropertiesEl = document.getElementById('unpaidProperties');
 const totalTaxCollectedEl = document.getElementById('totalTaxCollected');
 const currentUserEl = document.getElementById('currentUser');
 const logoutBtn = document.getElementById('logoutBtn');
+const { fetchJson } = window.HargeisaApi;
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-US', {
@@ -21,7 +22,7 @@ async function loadDashboard() {
   try {
     const data = window.HargeisaDemo?.enabled
       ? window.HargeisaDemo.getStats()
-      : await (await fetch('/api/dashboard')).json();
+      : await fetchJson('/api/dashboard');
 
     totalPropertiesEl.textContent = data.totalProperties || 0;
     paidPropertiesEl.textContent = data.paidProperties || 0;

@@ -6,6 +6,7 @@ const statusFilter = document.getElementById('statusFilter');
 const resetBtn = document.getElementById('resetBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const propertyMessage = document.getElementById('propertyMessage');
+const { fetchJson } = window.HargeisaApi;
 
 function showMessage(message, type = 'success') {
   propertyMessage.textContent = message;
@@ -42,9 +43,7 @@ logoutBtn.addEventListener('click', (event) => {
 
 async function getPropertyRows(search = '') {
   if (window.HargeisaDemo?.enabled) return window.HargeisaDemo.getProperties(search);
-  const response = await fetch(`/api/properties?search=${encodeURIComponent(search)}`);
-  if (!response.ok) throw new Error('Unable to load properties.');
-  return response.json();
+  return fetchJson(`/api/properties?search=${encodeURIComponent(search)}`);
 }
 
 async function loadProperties(search = '', status = 'All') {
@@ -105,13 +104,11 @@ propertyForm.addEventListener('submit', async (event) => {
     if (window.HargeisaDemo?.enabled) {
       window.HargeisaDemo.saveProperty(payload, propertyId || null);
     } else {
-      const response = await fetch(propertyId ? `/api/properties/${propertyId}` : '/api/properties', {
+      await fetchJson(propertyId ? `/api/properties/${propertyId}` : '/api/properties', {
         method: propertyId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      const data = await response.json();
-      if (!response.ok) return showMessage(data.message || 'Could not save property.', 'error');
     }
 
     propertyForm.reset();
@@ -120,7 +117,7 @@ propertyForm.addEventListener('submit', async (event) => {
     loadProperties(searchInput.value, statusFilter.value);
   } catch (error) {
     console.error('Save property error:', error);
-    showMessage('Unable to save property.', 'error');
+    showMessage(error.message || 'Unable to save property.', 'error');
   }
 });
 
@@ -138,15 +135,13 @@ tableBody.addEventListener('click', async (event) => {
       if (window.HargeisaDemo?.enabled) {
         window.HargeisaDemo.deleteProperty(propertyId);
       } else {
-        const response = await fetch(`/api/properties/${propertyId}`, { method: 'DELETE' });
-        const data = await response.json();
-        if (!response.ok) return showMessage(data.message || 'Property could not be deleted.', 'error');
+        await fetchJson(`/api/properties/${propertyId}`, { method: 'DELETE' });
       }
       showMessage('Property deleted successfully.', 'success');
       loadProperties(searchInput.value, statusFilter.value);
     } catch (error) {
       console.error('Delete property error:', error);
-      showMessage('Unable to delete property.', 'error');
+      showMessage(error.message || 'Unable to delete property.', 'error');
     }
   }
 
@@ -154,7 +149,7 @@ tableBody.addEventListener('click', async (event) => {
     try {
       const property = window.HargeisaDemo?.enabled
         ? window.HargeisaDemo.getProperty(propertyId)
-        : await (await fetch(`/api/properties/${propertyId}`)).json();
+        : await fetchJson(`/api/properties/${propertyId}`);
       if (!property) throw new Error('Property not found.');
 
       document.getElementById('propertyId').value = property.id;
@@ -171,7 +166,7 @@ tableBody.addEventListener('click', async (event) => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error('Edit property error:', error);
-      showMessage('Unable to load property for editing.', 'error');
+      showMessage(error.message || 'Unable to load property for editing.', 'error');
     }
   }
 });

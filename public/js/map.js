@@ -1,5 +1,6 @@
 // This script loads property coordinates and places markers on the Leaflet map.
 const map = L.map('map').setView([9.5600, 44.0520], 12);
+const { fetchJson } = window.HargeisaApi;
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
@@ -20,7 +21,7 @@ async function loadMapProperties() {
   try {
     const properties = window.HargeisaDemo?.enabled
       ? window.HargeisaDemo.getProperties()
-      : await (await fetch('/api/properties')).json();
+      : await fetchJson('/api/properties');
 
     properties.forEach((property) => {
       const latitude = Number(property.latitude);
