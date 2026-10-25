@@ -7,6 +7,7 @@ const resetBtn = document.getElementById('resetBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const propertyMessage = document.getElementById('propertyMessage');
 const { fetchJson } = window.HargeisaApi;
+const { appendTextCell, appendStatusCell, appendActionCell, appendEmptyRow } = window.HargeisaTable;
 
 function showMessage(message, type = 'success') {
   propertyMessage.textContent = message;
@@ -23,11 +24,6 @@ function validatePropertyForm(payload) {
   if (Number.isNaN(Number(payload.latitude))) return 'Latitude must be a valid number.';
   if (Number.isNaN(Number(payload.longitude))) return 'Longitude must be a valid number.';
   return null;
-}
-
-function getStatusBadge(status) {
-  const safeStatus = status || 'Unpaid';
-  return `<span class="status-badge ${safeStatus === 'Paid' ? 'paid' : 'unpaid'}">${safeStatus}</span>`;
 }
 
 function checkLogin() {
@@ -49,31 +45,30 @@ async function getPropertyRows(search = '') {
 async function loadProperties(search = '', status = 'All') {
   try {
     const data = await getPropertyRows(search);
-    tableBody.innerHTML = '';
+    tableBody.replaceChildren();
 
     const filteredData = data.filter((property) => status === 'All' || property.tax_status === status);
     if (!filteredData.length) {
-      tableBody.innerHTML = '<tr><td colspan="11">No properties found.</td></tr>';
+      appendEmptyRow(tableBody, 11, 'No properties found.');
       return;
     }
 
     filteredData.forEach((property) => {
       const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${property.property_code}</td>
-        <td>${property.owner_name}</td>
-        <td>${property.phone}</td>
-        <td>${property.district}</td>
-        <td>${property.property_type}</td>
-        <td>$${Number(property.tax_amount).toFixed(2)}</td>
-        <td>${getStatusBadge(property.tax_status)}</td>
-        <td>${property.latitude}</td>
-        <td>${property.longitude}</td>
-        <td>${new Date(property.created_at).toLocaleDateString()}</td>
-        <td>
-          <button class="action-btn" data-action="edit" data-id="${property.id}">Edit</button>
-          <button class="action-btn" data-action="delete" data-id="${property.id}">Delete</button>
-        </td>`;
+      appendTextCell(row, property.property_code);
+      appendTextCell(row, property.owner_name);
+      appendTextCell(row, property.phone);
+      appendTextCell(row, property.district);
+      appendTextCell(row, property.property_type);
+      appendTextCell(row, `$${Number(property.tax_amount).toFixed(2)}`);
+      appendStatusCell(row, property.tax_status);
+      appendTextCell(row, property.latitude);
+      appendTextCell(row, property.longitude);
+      appendTextCell(row, new Date(property.created_at).toLocaleDateString());
+      appendActionCell(row, property.id, [
+        { action: 'edit', label: 'Edit' },
+        { action: 'delete', label: 'Delete' }
+      ]);
       tableBody.appendChild(row);
     });
   } catch (error) {
