@@ -28,13 +28,15 @@
 
   function appendActionCell(row, recordId, actions) {
     const cell = createElement(row, 'td');
-    actions.forEach(({ action, label }) => {
+    actions.forEach(({ action, label, accessibleLabel }) => {
       const button = createElement(row, 'button');
       button.type = 'button';
       button.className = 'action-btn';
       button.dataset.action = action;
       button.dataset.id = String(recordId);
       button.textContent = label;
+      // Repeated "Edit"/"Delete" buttons need a row-specific name for screen readers.
+      if (accessibleLabel) button.setAttribute('aria-label', String(accessibleLabel));
       cell.appendChild(button);
     });
     row.appendChild(cell);

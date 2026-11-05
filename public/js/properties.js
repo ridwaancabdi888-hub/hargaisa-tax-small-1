@@ -6,12 +6,38 @@ const statusFilter = document.getElementById('statusFilter');
 const resetBtn = document.getElementById('resetBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const propertyMessage = document.getElementById('propertyMessage');
+const propertyIdInput = document.getElementById('propertyId');
+const formCard = document.getElementById('propertyFormCard');
+const formTitle = document.getElementById('propertyFormTitle');
+const editNotice = document.getElementById('editNotice');
+const saveBtn = document.getElementById('saveBtn');
 const { fetchJson } = window.HargeisaApi;
 const { appendTextCell, appendStatusCell, appendActionCell, appendEmptyRow } = window.HargeisaTable;
 
 function showMessage(message, type = 'success') {
   propertyMessage.textContent = message;
   propertyMessage.className = `form-message ${type}`;
+}
+
+// Keep the form heading, buttons and highlight in sync with add vs. edit mode
+// so users always know whether saving will create or overwrite a record.
+function setEditMode(property) {
+  const editing = Boolean(property);
+  const label = editing ? property.property_code || `#${property.id}` : '';
+  formCard.classList.toggle('is-editing', editing);
+  formTitle.textContent = editing ? `Edit Property ${label}` : 'Add Property';
+  editNotice.hidden = !editing;
+  editNotice.textContent = editing
+    ? `You are editing ${label} (${property.owner_name}). Saving will update this record.`
+    : '';
+  saveBtn.textContent = editing ? 'Update Property' : 'Save Property';
+  resetBtn.textContent = editing ? 'Cancel Edit' : 'Reset';
+}
+
+function exitEditMode() {
+  propertyForm.reset();
+  propertyIdInput.value = '';
+  setEditMode(null);
 }
 
 function validatePropertyForm(payload) {
@@ -65,9 +91,10 @@ async function loadProperties(search = '', status = 'All') {
       appendTextCell(row, property.latitude);
       appendTextCell(row, property.longitude);
       appendTextCell(row, new Date(property.created_at).toLocaleDateString());
+      const rowLabel = `${property.property_code || `property ${property.id}`} (${property.owner_name})`;
       appendActionCell(row, property.id, [
-        { action: 'edit', label: 'Edit' },
-        { action: 'delete', label: 'Delete' }
+        { action: 'edit', label: 'Edit', accessibleLabel: `Edit ${rowLabel}` },
+        { action: 'delete', label: 'Delete', accessibleLabel: `Delete ${rowLabel}` }
       ]);
       tableBody.appendChild(row);
     });
@@ -79,7 +106,7 @@ async function loadProperties(search = '', status = 'All') {
 
 propertyForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const propertyId = document.getElementById('propertyId').value;
+  const propertyId = propertyIdInput.value;
   const payload = {
     property_code: document.getElementById('propertyCode').value.trim(),
     owner_name: document.getElementById('ownerName').value.trim(),
@@ -106,8 +133,7 @@ propertyForm.addEventListener('submit', async (event) => {
       });
     }
 
-    propertyForm.reset();
-    document.getElementById('propertyId').value = '';
+    exitEditMode();
     showMessage(propertyId ? 'Property updated successfully.' : 'Property added successfully.', 'success');
     loadProperties(searchInput.value, statusFilter.value);
   } catch (error) {
@@ -132,7 +158,14 @@ tableBody.addEventListener('click', async (event) => {
       } else {
         await fetchJson(`/api/properties/${propertyId}`, { method: 'DELETE' });
       }
-      showMessage('Property deleted successfully.', 'success');
+      // Deleting the record that is open in the form must not leave a stale
+      // edit target behind, otherwise the next save would update a missing row.
+      const deletedActiveRecord = propertyIdInput.value === String(propertyId);
+      if (deletedActiveRecord) exitEditMode();
+      showMessage(
+        deletedActiveRecord ? 'Property deleted. The edit form has been cleared.' : 'Property deleted successfully.',
+        'success'
+      );
       loadProperties(searchInput.value, statusFilter.value);
     } catch (error) {
       console.error('Delete property error:', error);
@@ -147,7 +180,7 @@ tableBody.addEventListener('click', async (event) => {
         : await fetchJson(`/api/properties/${propertyId}`);
       if (!property) throw new Error('Property not found.');
 
-      document.getElementById('propertyId').value = property.id;
+      propertyIdInput.value = property.id;
       document.getElementById('propertyCode').value = property.property_code;
       document.getElementById('ownerName').value = property.owner_name;
       document.getElementById('phone').value = property.phone;
@@ -157,8 +190,12 @@ tableBody.addEventListener('click', async (event) => {
       document.getElementById('taxStatus').value = property.tax_status;
       document.getElementById('latitude').value = property.latitude;
       document.getElementById('longitude').value = property.longitude;
-      showMessage('Edit the property details and save.', 'success');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setEditMode(property);
+      propertyMessage.className = 'form-message';
+      propertyMessage.textContent = '';
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      formCard.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      document.getElementById('ownerName').focus({ preventScroll: true });
     } catch (error) {
       console.error('Edit property error:', error);
       showMessage(error.message || 'Unable to load property for editing.', 'error');
@@ -167,9 +204,9 @@ tableBody.addEventListener('click', async (event) => {
 });
 
 resetBtn.addEventListener('click', () => {
-  propertyForm.reset();
-  document.getElementById('propertyId').value = '';
-  showMessage('Form reset.', 'success');
+  const wasEditing = Boolean(propertyIdInput.value);
+  exitEditMode();
+  showMessage(wasEditing ? 'Edit cancelled. No changes were saved.' : 'Form reset.', 'success');
 });
 
 checkLogin();

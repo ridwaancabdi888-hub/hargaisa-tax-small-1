@@ -17,6 +17,10 @@ function fakeDocument() {
         ownerDocument: this,
         children: [],
         dataset: {},
+        attributes: {},
+        setAttribute(name, value) {
+          this.attributes[name] = value;
+        },
         appendChild(child) {
           this.children.push(child);
           return child;
@@ -64,6 +68,18 @@ test('normalizes status badges and creates safe action buttons', () => {
       { type: 'button', action: 'delete', id: 'property-7', label: 'Delete' }
     ]
   );
+});
+
+test('gives repeated action buttons a row-specific accessible name when provided', () => {
+  const row = container();
+  const actionCell = appendActionCell(row, 3, [
+    { action: 'edit', label: 'Edit', accessibleLabel: 'Edit HPT-003 (Mohamed Mooge)' },
+    { action: 'delete', label: 'Delete' }
+  ]);
+
+  assert.equal(actionCell.children[0].textContent, 'Edit');
+  assert.equal(actionCell.children[0].attributes['aria-label'], 'Edit HPT-003 (Mohamed Mooge)');
+  assert.equal(actionCell.children[1].attributes['aria-label'], undefined);
 });
 
 test('creates an empty-state row with the requested column span', () => {

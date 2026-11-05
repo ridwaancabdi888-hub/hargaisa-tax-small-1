@@ -211,6 +211,23 @@ button:hover {
   grid-template-columns: repeat(3, minmax(200px, 1fr));
 }
 
+.card.is-editing {
+  box-shadow: 0 0 0 2px #f59e0b, 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.edit-notice {
+  margin: 12px 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.edit-notice[hidden] {
+  display: none;
+}
+
 .form-actions {
   display: flex;
   gap: 12px;
