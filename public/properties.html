@@ -27,8 +27,9 @@
 
       <main class="main-content">
         <header class="topbar"><h1>Property Management</h1></header>
-        <section class="card">
-          <h3>Add Property</h3>
+        <section class="card" id="propertyFormCard" aria-labelledby="propertyFormTitle">
+          <h3 id="propertyFormTitle">Add Property</h3>
+          <p id="editNotice" class="edit-notice" role="status" hidden></p>
           <div id="propertyMessage" class="form-message" aria-live="polite"></div>
           <form id="propertyForm" class="property-form">
             <input type="hidden" id="propertyId" />
@@ -43,7 +44,7 @@
               <div><label for="latitude">Latitude</label><input type="number" id="latitude" step="0.000001" required /></div>
               <div><label for="longitude">Longitude</label><input type="number" id="longitude" step="0.000001" required /></div>
             </div>
-            <div class="form-actions"><button type="submit" class="primary-btn">Save Property</button><button type="button" id="resetBtn" class="secondary-btn">Reset</button></div>
+            <div class="form-actions"><button type="submit" id="saveBtn" class="primary-btn">Save Property</button><button type="button" id="resetBtn" class="secondary-btn">Reset</button></div>
           </form>
         </section>
 
